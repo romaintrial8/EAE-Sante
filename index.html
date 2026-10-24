@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cocarde</title>
+<meta name="description" content="Préparation au concours de l'École de l'air et de l'espace : plan, santé Garmin, tests et échéances.">
+<meta name="theme-color" content="#F2F4F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A1019" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Cocarde">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="preload" href="./fonts/barlow-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./fonts/barlow-semi-condensed-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<script>try{var t=JSON.parse(localStorage.getItem('cocarde.theme')||'"system"');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<style>
+  html,body{margin:0;background:#F2F4F7}
+  @media (prefers-color-scheme: dark){html:not([data-theme="light"]),html:not([data-theme="light"]) body{background:#0A1019}}
+  html[data-theme="dark"],html[data-theme="dark"] body{background:#0A1019}
+  .splash{position:fixed;inset:0;display:grid;place-items:center}
+  .splash svg{width:64px;height:64px;animation:pulse 1.4s ease-in-out infinite}
+  @keyframes pulse{50%{transform:scale(.9);opacity:.7}}
+  @media (prefers-reduced-motion: reduce){.splash svg{animation:none}}
+</style>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<div id="app"><div class="splash" aria-label="Chargement"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#23408F"/><circle cx="12" cy="12" r="7.3" fill="#fff"/><circle cx="12" cy="12" r="3.7" fill="#C8102E"/></svg></div></div>
+<noscript>Cocarde a besoin de JavaScript.</noscript>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+/* Cocarde — carnet de vol d'un candidat pilote.
+   Mise en page : colonne unique sur téléphone (barre d'onglets en bas), barre latérale + colonnes sur ordinateur.
+   Papier froid, encre marine, bleu cocarde pour la marque ; rouge réservé aux alertes. */
+@font-face { font-family: "Barlow"; font-weight: 400; font-display: swap; src: url("./fonts/barlow-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Barlow"; font-weight: 500; font-display: swap; src: url("./fonts/barlow-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Barlow"; font-weight: 600; font-display: swap; src: url("./fonts/barlow-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Semi Condensed"; font-weight: 500; font-display: swap; src: url("./fonts/barlow-semi-condensed-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Semi Condensed"; font-weight: 600; font-display: swap; src: url("./fonts/barlow-semi-condensed-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Semi Condensed"; font-weight: 700; font-display: swap; src: url("./fonts/barlow-semi-condensed-latin-700-normal.woff2") format("woff2"); }
+
+:root {
+  --font-display: "Barlow Semi Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+  --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --t-caption: 500 12px/16px var(--font-body);
+  --t-small: 400 13px/18px var(--font-body);
+  --t-body: 400 15px/22px var(--font-body);
+  --t-strong: 600 15px/22px var(--font-body);
+  --t-label: 600 12px/16px var(--font-display);
+  --t-h3: 600 17px/22px var(--font-display);
+  --t-h2: 600 20px/26px var(--font-display);
+  --t-h1: 700 28px/32px var(--font-display);
+  --t-num-l: 600 38px/40px var(--font-display);
+  --t-num-m: 600 24px/28px var(--font-display);
+
+  /* papier et encre */
+  --paper: #F2F4F7;
+  --panel: #FFFFFF;
+  --panel-2: #E8ECF1;
+  --ink: #0D1726;
+  --ink-2: #47536A;
+  --ink-3: #6E7A8F;
+  --line: #D5DBE3;
+  --line-2: #B8C1CE;
+  --action: #0D1726;
+  --on-action: #F2F4F7;
+  --brand: #23408F;          /* bleu cocarde */
+  --brand-bg: #E1E7F5;
+  --focus: #23408F;
+
+  /* états */
+  --ok: #1E7552;   --ok-bg: #DFF0E7;
+  --warn: #8F5B00; --warn-bg: #F5EAD5;
+  --crit: #B1261F; --crit-bg: #F7E1DF;
+
+  /* disciplines (les mêmes partout) */
+  --d-run: #B3442B;   --d-run-bg: #F5E3DE;
+  --d-swim: #0E6C84;  --d-swim-bg: #DAECF1;
+  --d-str: #5747A3;   --d-str-bg: #E7E3F4;
+  --d-test: #A35F00;  --d-test-bg: #F6E9D3;
+  --d-walk: #4F6B3A;  --d-walk-bg: #E4ECDC;
+  --d-conc: #23408F;  --d-conc-bg: #E1E7F5;
+
+  --chart-grid: #E1E6EC;
+  --chart-band: #23408F1A;
+
+  --r-4: 4px; --r-8: 8px; --r-12: 12px; --r-full: 999px;
+  --s-2: 2px; --s-4: 4px; --s-6: 6px; --s-8: 8px; --s-12: 12px; --s-16: 16px; --s-20: 20px; --s-24: 24px; --s-32: 32px; --s-40: 40px;
+  --touch: 44px;
+  --shadow-s: 0 1px 2px #0D172610, 0 4px 14px #0D17260C;
+  --shadow-l: 0 12px 40px #0D172633;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0A1019; --panel: #111A27; --panel-2: #182333;
+    --ink: #E6EAF0; --ink-2: #A2ADBD; --ink-3: #7C879A;
+    --line: #223047; --line-2: #33435E;
+    --action: #E6EAF0; --on-action: #0A1019;
+    --brand: #93AAF0; --brand-bg: #1A2747; --focus: #93AAF0;
+    --ok: #5CC59A; --ok-bg: #12301F; --warn: #E2A948; --warn-bg: #33270F; --crit: #F27C72; --crit-bg: #3A1716;
+    --d-run: #F08B70; --d-run-bg: #3A1C14; --d-swim: #52C0DA; --d-swim-bg: #0E2D36; --d-str: #AA9BF2; --d-str-bg: #251E43;
+    --d-test: #EFA24D; --d-test-bg: #352410; --d-walk: #9CC27E; --d-walk-bg: #1D2A14; --d-conc: #93AAF0; --d-conc-bg: #1A2747;
+    --chart-grid: #1C2738; --chart-band: #93AAF024;
+    --shadow-s: 0 1px 2px #00000040; --shadow-l: 0 12px 40px #00000080;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0A1019; --panel: #111A27; --panel-2: #182333;
+  --ink: #E6EAF0; --ink-2: #A2ADBD; --ink-3: #7C879A;
+  --line: #223047; --line-2: #33435E;
+  --action: #E6EAF0; --on-action: #0A1019;
+  --brand: #93AAF0; --brand-bg: #1A2747; --focus: #93AAF0;
+  --ok: #5CC59A; --ok-bg: #12301F; --warn: #E2A948; --warn-bg: #33270F; --crit: #F27C72; --crit-bg: #3A1716;
+  --d-run: #F08B70; --d-run-bg: #3A1C14; --d-swim: #52C0DA; --d-swim-bg: #0E2D36; --d-str: #AA9BF2; --d-str-bg: #251E43;
+  --d-test: #EFA24D; --d-test-bg: #352410; --d-walk: #9CC27E; --d-walk-bg: #1D2A14; --d-conc: #93AAF0; --d-conc-bg: #1A2747;
+  --chart-grid: #1C2738; --chart-band: #93AAF024;
+  --shadow-s: 0 1px 2px #00000040; --shadow-l: 0 12px 40px #00000080;
+}

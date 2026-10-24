@@ -1,0 +1,25 @@
+{
+  "name": "cocarde",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "dev": "node scripts/build.mjs && npx --yes serve dist -l 5173"
+  },
+  "dependencies": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@fontsource/barlow": "5.2.5",
+    "@fontsource/barlow-semi-condensed": "5.2.5",
+    "@types/react": "19.1.2",
+    "@types/react-dom": "19.1.2",
+    "esbuild": "0.25.4",
+    "tsx": "4.19.4",
+    "typescript": "5.8.3"
+  }
+}
