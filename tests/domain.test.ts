@@ -8,7 +8,8 @@ import { mapActivity, mapWellness } from '../src/domain/intervals.ts';
 import { makeBackup, parseBackup } from '../src/domain/backup.ts';
 import { emptyData, type AppData } from '../src/domain/types.ts';
 import { weightTarget } from '../src/domain/targets.ts';
-import { sportScore, weekCompletion } from '../src/domain/progress.ts';
+import { weekCompletion } from '../src/domain/progress.ts';
+import { sportScore } from '../src/domain/progression.ts';
 
 const NOW = '2026-10-24T12:00:00.000Z';
 
@@ -62,12 +63,13 @@ test('saisie et affichage des performances', () => {
 });
 
 test('temps de passage calculés depuis les allures', () => {
-  assert.match(paceNote("5×500 @4'13 r 1'30") ?? '', /500 m en 2'07/);
-  assert.match(paceNote("5×600 @4'13 r 1'45") ?? '', /600 m en 2'32/);
-  assert.match(paceNote("8×400 @3'49 r 1'30") ?? '', /400 m en 1'32/);
-  assert.match(paceNote("2×6 × 30/30 @4'00") ?? '', /≈ 125 m/);
-  assert.match(paceNote("10 × 30/30 @3'49") ?? '', /≈ 130 m/);
-  assert.match(paceNote("2×12' @4'33") ?? '', /seuil/);
+  assert.match(paceNote("5×500 @{4'13} r 1'30") ?? '', /500 m en 2'07/);
+  assert.match(paceNote("5×600 @{4'13} r 1'45") ?? '', /600 m en 2'32/);
+  assert.match(paceNote("8×400 @{3'49} r 1'30") ?? '', /400 m en 1'32/);
+  assert.match(paceNote("2×6 × 30/30 @{4'00}") ?? '', /≈ 125 m/);
+  assert.match(paceNote("10 × 30/30 @{3'49}") ?? '', /≈ 130 m/);
+  assert.match(paceNote("2×12' @{4'33}") ?? '', /seuil/);
+  assert.match(paceNote("4×800 @4'03 r 2'") ?? '', /allure cible 3000 m/);
 });
 
 test('le plan couvre chaque jour du 05/10/2026 au 14/03/2027, sans identifiant en double', () => {
@@ -209,7 +211,7 @@ test('trajectoire de poids et note sportive', () => {
   d.tests.a = { id: 'a', date: '2026-10-04', event: 'pullups', value: 5, source: 's0', updatedAt: NOW };
   d.tests.b = { id: 'b', date: '2026-10-04', event: 'situps', value: 40, source: 's0', updatedAt: NOW };
   d.tests.c = { id: 'c', date: '2026-10-04', event: 'swim50', value: 32.5, source: 's0', updatedAt: NOW };
-  const s = sportScore(d);
+  const s = sportScore(d, '2026-10-24');
   assert.equal(s.count, 3);
   assert.equal(Math.round((s.avg ?? 0) * 100) / 100, 12.67);
   d.done['2026-10-19/s/T-A'] = { id: '2026-10-19/s/T-A', status: 'done', updatedAt: NOW };

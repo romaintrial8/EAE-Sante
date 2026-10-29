@@ -311,3 +311,30 @@ td .m { color: var(--brand); font-weight: 600; }
 .help h3 { font: var(--t-h3); margin-top: var(--s-8); }
 .help p, .help li { font: var(--t-body); color: var(--ink-2); max-width: 65ch; }
 .help ol, .help ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+
+/* ───────── v2 : écran du jour allégé, adaptations ───────── */
+@media (min-width: 560px) { .metrics.m4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } .metrics.m5 { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+@media (max-width: 559px) { .metrics.m5 .metric:nth-child(5) { grid-column: span 2; } }
+.crit-text { color: var(--crit); }
+.ok-text { color: var(--ok); }
+.boost { background: var(--brand-bg); border-radius: var(--r-8); padding: var(--s-12); display: flex; flex-direction: column; gap: 6px; }
+.boost .label { color: var(--brand); }
+.boost ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.boost li { position: relative; padding-left: 16px; }
+.session .boost li::before, .boost li::before { content: "+"; position: absolute; left: 2px; top: 0; width: auto; height: auto; border-radius: 0; background: none; font-weight: 700; color: var(--brand); }
+.adaptnote { display: block; font: var(--t-small); color: var(--brand); text-decoration: none; padding: 0 var(--s-4); }
+.adaptnote::after { content: " →"; }
+.summary3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-12); overflow: hidden; }
+.summary3 > div { background: var(--panel); padding: var(--s-12); display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.summary3 b { font: var(--t-num-m); }
+.summary3 b small { font: 500 13px/1 var(--font-body); color: var(--ink-3); }
+.summary3 span { font: var(--t-caption); color: var(--ink-3); }
+details.fold { padding: 0; }
+details.fold > summary { cursor: pointer; list-style: none; padding: var(--s-16); font: var(--t-h3); }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::after { content: "＋"; float: right; color: var(--ink-3); }
+details.fold[open] > summary::after { content: "－"; }
+details.fold > :not(summary) { margin: 0 var(--s-16) var(--s-16); }
+.item .chev { color: var(--ink-3); flex: none; display: grid; }
+.item .chev svg { width: 18px; height: 18px; }
+.session .method { margin-top: 0; }

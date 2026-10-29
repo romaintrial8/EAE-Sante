@@ -23,7 +23,7 @@ let seed = 7;
 const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
 const days = [];
 for (let i = 49; i >= 0; i--) {
-  const d = new Date(Date.UTC(2026, 9, 24) - i * 86400000).toISOString().slice(0, 10);
+  const d = new Date(Date.UTC(2026, 10, 2) - i * 86400000).toISOString().slice(0, 10);
   const low = i <= 1;
   days.push({ id: d, sleepScore: Math.round(70 + rnd() * 20), sleepSecs: Math.round((6.6 + rnd() * 1.3) * 3600), hrv: Math.round((low ? 39 : 50) + rnd() * 8), restingHR: Math.round(51 + rnd() * 4 + (low ? 4 : 0)), weight: i % 3 === 0 ? +(87.2 - (49 - i) * 0.035 + rnd() * 0.4).toFixed(1) : 0, ctl: 30 });
 }
@@ -32,6 +32,7 @@ const acts = [
   { id: 'a2', start_date_local: '2026-10-21T16:20:00', type: 'Swim', name: 'Piscine', distance: 1500, moving_time: 2400, average_heartrate: 132 },
   { id: 'a3', start_date_local: '2026-10-23T16:25:00', type: 'Run', name: 'Seuil 2×9', distance: 8100, moving_time: 2580, average_heartrate: 162, average_speed: 3.14 },
   { id: 'a4', start_date_local: '2026-10-24T09:05:00', type: 'Run', name: 'Sortie longue', distance: 8600, moving_time: 3050, average_heartrate: 141, average_speed: 2.82 },
+  { id: 'a5', start_date_local: '2026-11-02T16:20:00', type: 'WeightTraining', name: 'Tirage', moving_time: 3300, average_heartrate: 118 },
 ];
 
 const browser = await chromium.launch();
@@ -44,7 +45,7 @@ for (const [w, h, tag] of [[390, 844, 'mobile'], [1280, 900, 'desktop']]) {
     if (which !== 'all' && which !== `${tag}-${scheme}`) continue;
     const ctx = await browser.newContext({ viewport: { width: w, height: h }, colorScheme: scheme, deviceScaleFactor: tag === 'mobile' ? 2 : 1 });
     await ctx.addInitScript(() => {
-      const fixed = new Date('2026-10-24T13:30:00').getTime();
+      const fixed = new Date('2026-11-02T13:30:00').getTime();
       const RealDate = Date;
       class FakeDate extends RealDate { constructor(...a) { super(...(a.length ? a : [fixed])); } static now() { return fixed; } }
       globalThis.Date = FakeDate;
@@ -60,6 +61,18 @@ for (const [w, h, tag] of [[390, 844, 'mobile'], [1280, 900, 'desktop']]) {
     page.on('pageerror', (e) => errors.push(e.message));
     page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
     await page.goto('http://localhost:5178/#/aujourdhui');
+    await page.waitForTimeout(800);
+    // résultats de tests fictifs
+    await page.evaluate(async () => {
+      const tests = [['pullups', '2026-10-17', 5], ['pullups', '2026-10-31', 5], ['situps', '2026-10-24', 41], ['sprint50', '2026-10-06', 7.31], ['run3000', '2026-10-09', 790], ['swim50', '2026-10-28', 32.4]];
+      const db = await new Promise((res) => { const r = indexedDB.open('cocarde', 1); r.onsuccess = () => res(r.result); });
+      await new Promise((res) => {
+        const tx = db.transaction('records', 'readwrite');
+        tests.forEach(([event, date, value], i) => tx.objectStore('records').put({ id: 'demo' + i, event, date, value, source: 'manual', updatedAt: '2026-11-01T10:00:0' + i + '.000Z' }, 'tests/demo' + i));
+        tx.oncomplete = res;
+      });
+    });
+    await page.reload();
     await page.waitForTimeout(1200);
     for (const [name, hash] of shots) {
       await page.evaluate((hh) => { location.hash = hh; }, hash);

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { diffDays, fmtShort, mondayOfWeek, PLAN_WEEKS, todayYmd, weekOf } from '../domain/dates';
 import { MOCK_ORALS, sortedDeadlines } from '../domain/deadlines';
 import { CG_THEMES, dayPlan, type BlockKind } from '../domain/plan';
@@ -27,6 +28,9 @@ export function ConcoursScreen() {
   const dlDone = (id: string) => !!data.deadlines[id] && !data.deadlines[id]?.deleted;
   const upcoming = dls.filter((d) => d.date >= today && !dlDone(d.id));
   const focus = [...upcoming.filter((d) => d.critical), ...upcoming.filter((d) => !d.critical)].slice(0, 3).sort((a, b) => a.date.localeCompare(b.date));
+  const [showAll, setShowAll] = useState(false);
+  const listed = showAll ? dls : upcoming;
+  const hidden = dls.length - upcoming.length;
   const oralBlock = (date: string) => dayPlan(date).blocks.find((b) => b.kind === 'ORAL');
   return (
     <div className="stack-16">
@@ -46,23 +50,17 @@ export function ConcoursScreen() {
       </div>
       <div className="cols">
         <div className="stack-16">
-          <Card title={`Semaine S${wk}`} aside={<span className="caption num">{comp.concours.done}/{comp.concours.total} blocs faits</span>}>
-            <div className="stack">
+          <Card title={`Cette semaine · ${comp.concours.done}/${comp.concours.total} blocs`}>
+            <div className="pills">
               {CAT.filter((c) => comp.byKind[c.kind]).map((c) => {
                 const k = comp.byKind[c.kind] as { done: number; total: number };
-                return (
-                  <div key={c.kind} className="stack-8">
-                    <div className="spread"><span className="small">{c.label}</span><span className="num small"><b>{k.done}</b> / {k.total}</span></div>
-                    <div className="bar"><i style={{ width: `${k.total ? (k.done / k.total) * 100 : 0}%` }} /></div>
-                  </div>
-                );
+                return <span key={c.kind} className={`pill ${k.done >= k.total ? 'ok' : ''}`}>{c.label} {k.done}/{k.total}</span>;
               })}
-              <p className="caption">Compté du lundi à aujourd’hui. Coche les blocs sur l’écran du jour.</p>
             </div>
           </Card>
-          <Card title="Échéances">
+          <Card title="Échéances à venir">
             <div className="items">
-              {dls.map((d) => {
+              {listed.map((d) => {
                 const past = d.date < today;
                 return (
                   <CheckItem key={d.id} done={dlDone(d.id)} onToggle={() => setDeadlineDone(d.id, !dlDone(d.id))}
@@ -71,6 +69,7 @@ export function ConcoursScreen() {
                 );
               })}
             </div>
+            {hidden > 0 && <button type="button" className="btn ghost small" onClick={() => setShowAll(!showAll)}>{showAll ? 'Masquer les échéances passées ou faites' : `Voir aussi les ${hidden} passées ou faites`}</button>}
           </Card>
         </div>
         <div className="stack-16">

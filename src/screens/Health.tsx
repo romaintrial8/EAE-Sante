@@ -64,13 +64,9 @@ export function HealthScreen() {
           </Card>
         </div>
         <div className="stack-16">
-          <Card title="Score de sommeil" aside={<span className="caption num">{sleepScore.length ? `moy. ${Math.round(avg(sleepScore) ?? 0)}` : ''}</span>}>
+          <Card title="Sommeil" aside={<span className="caption num">{sleepScore.length ? `moy. ${Math.round(avg(sleepScore) ?? 0)}/100` : ''}{sleepH.length ? ` · ${fmtDuration((avg(sleepH) ?? 0) * 3600)}` : ''}</span>}>
             <BarChart ariaLabel="Score de sommeil Garmin sur 100" from={from} to={to} points={sleepScore} color="var(--brand)" yMax={100} fmt={(v) => `${v}`} />
-          </Card>
-          <Card title="Temps endormi" aside={<span className="caption num">{sleepH.length ? `moy. ${fmtDuration((avg(sleepH) ?? 0) * 3600)}` : ''}</span>}>
-            <BarChart ariaLabel="Temps de sommeil en heures" from={from} to={to} points={sleepH} color="var(--d-swim)" yMax={10} fmt={(v) => `${v} h`} threshold={{ value: 7.75, label: '7 h 45' }} />
-            <div className="legend"><span><i style={{ background: 'var(--d-swim)' }} />heures endormi</span><span><i className="dash" />7 h 45 prévues par le plan (22 h 00 – 05 h 45)</span></div>
-            <Method><p>Temps réellement endormi (phases légère, profonde et paradoxale), pas le temps passé au lit. Il reste donc normalement un peu sous la ligne des 7 h 45.</p></Method>
+            <Method><p>Score de sommeil calculé par Garmin (sur 100). La durée en haut à droite est le temps réellement endormi, pas le temps au lit : vise près de 7 h 30 pour 7 h 45 au lit (22 h 00 – 05 h 45).</p></Method>
           </Card>
           {bb.length > 0 && (
             <Card title="Body Battery au réveil">
@@ -78,7 +74,8 @@ export function HealthScreen() {
               <div className="legend"><span><i className="dash" />seuil du garde-fou : {BB_LIMIT}</span></div>
             </Card>
           )}
-          <Card title="14 derniers jours">
+          <details className="card fold">
+            <summary>Détail des 14 derniers jours</summary>
             <div className="tablewrap">
               <table>
                 <thead><tr><th>Jour</th><th>Sommeil</th><th>Durée</th><th>VFC</th><th>FC rep.</th><th>BB</th><th>Poids</th></tr></thead>
@@ -102,7 +99,7 @@ export function HealthScreen() {
               </table>
             </div>
             <p className="caption" style={{ marginTop: 8 }}>En bleu : valeur saisie à la main (elle remplace celle de Garmin).</p>
-          </Card>
+          </details>
         </div>
       </div>
     </div>

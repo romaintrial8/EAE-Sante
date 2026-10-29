@@ -17,7 +17,7 @@ export function parse(hash: string): Route {
     case 'jour': return b && /^\d{4}-\d{2}-\d{2}$/.test(b) ? { name: 'day', date: b } : { name: 'today' };
     case 'plan': { const n = Number(String(b ?? '').replace(/^S/i, '')); return { name: 'plan', week: Number.isInteger(n) && n > 0 ? n : undefined }; }
     case 'sante': return { name: 'health' };
-    case 'tests': return { name: 'tests' };
+    case 'tests': case 'perfs': return { name: 'tests' };
     case 'concours': return { name: 'concours' };
     case 'reglages': return { name: 'settings' };
     default: return { name: 'today' };
@@ -30,7 +30,7 @@ export function href(r: Route): string {
     case 'day': return `#/jour/${r.date}`;
     case 'plan': return r.week ? `#/plan/S${r.week}` : '#/plan';
     case 'health': return '#/sante';
-    case 'tests': return '#/tests';
+    case 'tests': return '#/perfs';
     case 'concours': return '#/concours';
     case 'settings': return '#/reglages';
   }

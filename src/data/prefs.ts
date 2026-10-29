@@ -33,6 +33,8 @@ export interface SyncMeta {
   activities?: number;
   fields?: string[];
   range?: string;
+  /** dernier jour avec une donnée de santé reçue */
+  latestNight?: string;
 }
 
 export const getSyncMeta = (): SyncMeta => read<SyncMeta>('cocarde.sync', {});

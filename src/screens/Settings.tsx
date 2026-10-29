@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { ago } from '../domain/dates';
+import { ago, fmtShort, todayYmd } from '../domain/dates';
+import { diagnose, latestNight } from '../domain/syncstate';
 import { live } from '../domain/types';
 import { exportBackup, importBackup, wipeAll } from '../data/backup-io';
 import { getIcuConfig, getTheme, setIcuConfig, setSyncMeta, setTheme, type ThemePref } from '../data/prefs';
@@ -16,6 +17,7 @@ const FIELD_LABEL: Record<string, string> = {
 
 function IntervalsCard() {
   const sync = useSync();
+  const data = useData();
   const cfg = getIcuConfig();
   const [athlete, setAthlete] = useState(cfg?.athleteId ?? '0');
   const [key, setKey] = useState(cfg?.apiKey ?? '');
@@ -60,8 +62,12 @@ function IntervalsCard() {
             <button type="button" className="btn danger" onClick={() => { setIcuConfig(null); setSyncMeta({}); refreshMeta(); setEditing(true); setKey(''); }}>Déconnecter</button>
           </div>
         )}
-        {m.lastError && <div className="banner alert"><div className="banner-body"><strong>Dernière erreur</strong><span className="small">{m.lastError}</span></div></div>}
+        {cfg && (() => {
+          const d = diagnose(m, data, true, todayYmd());
+          return d.level === 'ok' ? null : <div className={`banner ${d.level === 'error' ? 'alert' : 'unknown'}`}><div className="banner-body"><strong>{d.side === 'garmin' ? 'Côté Garmin → Intervals.icu' : d.side === 'app' ? 'Côté app → Intervals.icu' : 'État'}</strong><span className="small">{d.text}</span></div></div>;
+        })()}
         <dl className="diag">
+          <dt>Dernière nuit reçue</dt><dd>{latestNight(data) ? fmtShort(latestNight(data) as string) : '—'}</dd>
           <dt>Dernière synchro</dt><dd>{m.lastOkAt ? `${ago(m.lastOkAt)} (${new Date(m.lastOkAt).toLocaleString('fr-FR')})` : 'jamais'}</dd>
           <dt>Période relue</dt><dd>{m.range ?? '—'}</dd>
           <dt>Dernier lot</dt><dd>{m.wellnessDays !== undefined ? `${m.wellnessDays} jours de santé, ${m.activities ?? 0} activités` : '—'}</dd>
@@ -114,6 +120,23 @@ function ThemeCard() {
   );
 }
 
+function GarminFix() {
+  return (
+    <Card title="Garmin ne transmet plus ?" className="help">
+      <div className="stack">
+        <p>Si l’app joint Intervals.icu mais que la dernière nuit reçue date de plusieurs jours, la liaison Garmin → Intervals.icu est coupée. Dans l’ordre :</p>
+        <ol>
+          <li>Sur <b>intervals.icu</b> (le site), ouvre ton calendrier : si les derniers jours n’y ont pas de sommeil ni de VFC, le problème est bien là.</li>
+          <li>Dans <b>Settings</b>, section <b>Garmin</b> : vérifie que la connexion est active et que les champs <b>Wellness</b> sont cochés.</li>
+          <li>Si c’est déjà le cas : <b>déconnecte puis reconnecte Garmin</b>, et sur l’écran Garmin, <b>accepte toutes les autorisations</b>, y compris les données de santé quotidiennes.</li>
+          <li>Dans l’app <b>Garmin Connect</b>, synchronise la montre, attends 5 minutes.</li>
+          <li>Reviens ici et touche <b>Réimporter depuis le 01/09</b>.</li>
+        </ol>
+      </div>
+    </Card>
+  );
+}
+
 function Help() {
   return (
     <Card title="Aide" className="help">
@@ -145,7 +168,7 @@ export function SettingsScreen() {
   return (
     <div className="stack-16">
       <div className="cols">
-        <div className="stack-16"><IntervalsCard /><ThemeCard /></div>
+        <div className="stack-16"><IntervalsCard /><GarminFix /><ThemeCard /></div>
         <div className="stack-16"><DataCard /><Help /></div>
       </div>
     </div>

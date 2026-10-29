@@ -6,7 +6,7 @@ import { DayView } from './screens/Day';
 import { HealthScreen } from './screens/Health';
 import { PlanScreen } from './screens/Plan';
 import { SettingsScreen } from './screens/Settings';
-import { TestsScreen } from './screens/Tests';
+import { PerfsScreen } from './screens/Perfs';
 import { IconConcours, IconGear, IconHealth, IconPlan, IconTests, IconToday, Roundel } from './ui/icons';
 import { Toaster } from './ui/kit';
 import { href, useRoute, type Route } from './ui/router';
@@ -15,12 +15,12 @@ const TABS: { name: Route['name']; label: string; icon: () => ReactNode; to: Rou
   { name: 'today', label: 'Aujourd’hui', icon: IconToday, to: { name: 'today' } },
   { name: 'plan', label: 'Plan', icon: IconPlan, to: { name: 'plan' } },
   { name: 'health', label: 'Santé', icon: IconHealth, to: { name: 'health' } },
-  { name: 'tests', label: 'Tests', icon: IconTests, to: { name: 'tests' } },
+  { name: 'tests', label: 'Perfs', icon: IconTests, to: { name: 'tests' } },
   { name: 'concours', label: 'Concours', icon: IconConcours, to: { name: 'concours' } },
 ];
 
 const TITLES: Record<Route['name'], string> = {
-  today: 'Aujourd’hui', day: 'Journée', plan: 'Plan', health: 'Santé', tests: 'Tests', concours: 'Concours', settings: 'Réglages',
+  today: 'Aujourd’hui', day: 'Journée', plan: 'Plan', health: 'Santé', tests: 'Perfs', concours: 'Concours', settings: 'Réglages',
 };
 
 function current(r: Route): Route['name'] {
@@ -37,7 +37,7 @@ export function App() {
     case 'day': screen = <DayView date={route.date} />; break;
     case 'plan': screen = <PlanScreen week={route.week} />; break;
     case 'health': screen = <HealthScreen />; break;
-    case 'tests': screen = <TestsScreen />; break;
+    case 'tests': screen = <PerfsScreen />; break;
     case 'concours': screen = <ConcoursScreen />; break;
     case 'settings': screen = <SettingsScreen />; break;
   }

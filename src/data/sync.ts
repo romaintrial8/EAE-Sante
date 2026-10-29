@@ -1,15 +1,18 @@
-// Récupération quotidienne des données Garmin via l'API Intervals.icu (lecture seule).
+// Récupération des données Garmin via l'API Intervals.icu (lecture seule).
 // Chaîne : montre → Garmin Connect → Intervals.icu (automatique, dans le cloud) → Cocarde (à l'ouverture).
 import { useSyncExternalStore } from 'react';
 import { addDays, todayYmd } from '../domain/dates';
+import { latestNight, RETRY_MS, shouldSync } from '../domain/syncstate';
 import { mapActivity, mapWellness } from '../domain/intervals';
 import type { ActivityRec, WellnessRec } from '../domain/types';
 import { importFromIntervals } from './actions';
 import { getIcuConfig, getSyncMeta, setSyncMeta, type IcuConfig, type SyncMeta } from './prefs';
+import { getData } from './store';
 
 export const API = 'https://intervals.icu/api/v1';
 export const HISTORY_START = '2026-09-01';
-const AUTO_EVERY_MS = 3 * 3600 * 1000; // une fois toutes les 3 h au plus, à l'ouverture de l'app
+const TIMEOUT_MS = 20000;              // une requête bloquée ne fige plus jamais la synchro
+
 const LOOKBACK_DAYS = 7;               // on relit la dernière semaine (Garmin complète parfois le sommeil plus tard)
 
 interface SyncState { running: boolean; meta: SyncMeta }
@@ -26,14 +29,20 @@ export class SyncError extends Error {}
 async function get(cfg: IcuConfig, path: string, params: Record<string, string>): Promise<unknown> {
   const id = encodeURIComponent(cfg.athleteId.trim() || '0');
   const qs = new URLSearchParams(params).toString();
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   let res: Response;
   try {
     res = await fetch(`${API}/athlete/${id}/${path}?${qs}`, {
       headers: { Authorization: 'Basic ' + btoa('API_KEY:' + cfg.apiKey.trim()), Accept: 'application/json' },
       cache: 'no-store',
+      signal: ctrl.signal,
     });
-  } catch {
-    throw new SyncError('Intervals.icu injoignable : vérifie ta connexion internet. Si elle marche, le navigateur bloque peut-être la requête (voir Aide).');
+  } catch (e) {
+    if ((e as Error).name === 'AbortError') throw new SyncError('Intervals.icu ne répond pas (plus de 20 s). Réessaie avec une meilleure connexion.');
+    throw new SyncError('Intervals.icu injoignable : vérifie ta connexion internet.');
+  } finally {
+    clearTimeout(timer);
   }
   if (res.status === 401 || res.status === 403) throw new SyncError('Clé API refusée par Intervals.icu. Recopie-la depuis Settings › Developer Settings.');
   if (res.status === 404) throw new SyncError('Identifiant d’athlète inconnu. Laisse « 0 » ou recopie ton identifiant (il commence par « i »).');
@@ -53,7 +62,7 @@ export async function syncIntervals(opts: { force?: boolean; full?: boolean; cfg
   if (!cfg) return { ok: false, skipped: 'no-config' };
   if (state.running) return { ok: false, skipped: 'running' };
   const meta = getSyncMeta();
-  if (!opts.force && meta.lastOkAt && Date.now() - Date.parse(meta.lastOkAt) < AUTO_EVERY_MS) return { ok: true, skipped: 'recent' };
+  if (!opts.force && !shouldSync(meta, getData(), todayYmd())) return { ok: true, skipped: 'recent' };
   const today = todayYmd();
   const oldest = opts.full || !meta.lastOkAt ? HISTORY_START : addDays(today, -LOOKBACK_DAYS);
   const nowIso = new Date().toISOString();
@@ -71,6 +80,7 @@ export async function syncIntervals(opts: { force?: boolean; full?: boolean; cfg
     const next: SyncMeta = {
       ...meta, lastAttemptAt: nowIso, lastOkAt: nowIso, lastError: undefined, lastErrorAt: undefined,
       wellnessDays: wellness.length, activities: activities.length, fields: [...fields].sort(), range: `${oldest} → ${today}`,
+      latestNight: latestNight(getData()),
     };
     setSyncMeta(next);
     set({ running: false, meta: next });
@@ -88,10 +98,12 @@ export function refreshMeta(): void {
   set({ meta: getSyncMeta() });
 }
 
-/** Synchronisation automatique : au lancement, puis quand l'app revient au premier plan. */
+/** Synchronisation automatique : au lancement, au retour au premier plan, et toutes les 10 min tant que l'app est ouverte. */
 export function startAutoSync(): void {
   void syncIntervals();
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') void syncIntervals();
   });
+  window.addEventListener('online', () => void syncIntervals());
+  setInterval(() => { if (document.visibilityState === 'visible') void syncIntervals(); }, RETRY_MS);
 }
